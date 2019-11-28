@@ -1,13 +1,13 @@
 # DS Grid
 Model visualization for laravel
 
-##Installation
+## Installation
 
     composer require darthshell/grid
     php artisan vendor:publish --provider="DarthShelL\Grid\GridServiceProvider"
 
 
-##Usage
+## Usage
 
 Please, make sure u have "scripts" and "styles" sections in your layout.
 Layout example:
