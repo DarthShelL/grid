@@ -10,14 +10,14 @@ class Column
 {
     private $name = null;
     private $alias = null;
-    private $filter = null;
+    private $filter_type = null;
+    private $hidden = false;
 
-    #TODO: deside what filter is
-    public function __construct(string $name, string $alias = null, $filter = null)
+    public function __construct(string $name, string $alias = null, int $filter_type = null)
     {
         $this->setName($name);
         is_null($alias) ?: $this->setAlias($alias);
-        is_null($filter) ?: $this->setFilter($filter);
+        is_null($filter_type) ?: $this->setFilterType($filter_type);
     }
 
     public function getName(): string
@@ -30,10 +30,9 @@ class Column
         return $this->alias;
     }
 
-    public function getFilter(): string
+    public function getFilterType(): int
     {
-        #TODO: filter getter
-        return $this->name;
+        return $this->filter_type;
     }
 
     public function setName(string $name)
@@ -46,19 +45,31 @@ class Column
         $this->alias = $alias;
     }
 
-    public function setFilter($filter)
+    public function setFilterType(int $filter_type)
     {
-        #TODO: filter setter
-        $this->filter = $filter;
+        $this->filter_type = $filter_type;
     }
 
     public function hasAlias(): bool
     {
-        return is_null($this->alias)?false:true;
+        return is_null($this->alias) ? false : true;
     }
 
     public function hasFilter(): bool
     {
-        return is_null($this->filter)?false:true;
+        return is_null($this->filter_type) ? false : true;
+    }
+
+    public function hide()
+    {
+        $this->hidden = true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHidden(): bool
+    {
+        return $this->hidden;
     }
 }
