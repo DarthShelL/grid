@@ -7,6 +7,16 @@ class grid {
 
     setActions() {
         this.table.addEventListener('click', this.actionsHandler.bind(this));
+
+        const filter_inputs = this.table.querySelectorAll('input.dsg-filter');
+        for (const filter of filter_inputs) {
+            filter.addEventListener('change', this.filterActionHandler.bind(this));
+        }
+    }
+
+    filterActionHandler(e) {
+        const input = e.target;
+        this.update();
     }
 
     clearSort() {
@@ -52,6 +62,8 @@ class grid {
                 };
             }
         }
+
+        return false;
     }
 
     updateBody(resp) {
@@ -94,12 +106,40 @@ class grid {
         }
     }
 
+    getFilters() {
+        const filter_inputs = this.table.querySelectorAll('input.dsg-filter');
+        const filters = [];
+        for (const filter of filter_inputs) {
+            if (filter.value.toString().trim() !== '') {
+                filters.push({
+                    attribute: filter.getAttribute('data-attribute'),
+                    type: filter.getAttribute('data-type'),
+                    expression: filter.value
+                })
+            }
+        }
+
+        return filters;
+    }
+
     update() {
         const data = {dsgrid_update: true};
         //get sort
         const sort = this.getSort();
-        data.order_by = sort.attribute;
-        data.order_direction = sort.order;
+        if (sort) {
+            data.order_by = sort.attribute;
+            data.order_direction = sort.order;
+        }
+        //get filters
+        const filters = this.getFilters();
+
+        for (let i = 0; i < filters.length; i++) {
+            data['fa_' + i] = filters[i].attribute;
+            data['ft_' + i] = filters[i].type;
+            data['fv_' + i] = filters[i].expression;
+        }
+
+        console.log(data);
         this.sendUpdateRequest(data);
     }
 }
