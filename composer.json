@@ -1,0 +1,24 @@
+{
+    "name": "darthshell/grid",
+    "description": "Grid for laravel",
+    "authors": [
+        {
+            "name": "Vladimir Shelestov aka DarthShelL",
+            "email": "shellnosferatu@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "DarthShelL\\Grid\\GridServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "DarthShelL\\Grid\\": "src/"
+        }
+    }
+}

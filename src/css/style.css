@@ -1,0 +1,43 @@
+.dsg-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dsg-table thead {
+
+}
+
+.dsg-table tbody {
+    border-top: 1px solid #cecece;
+    text-align: center;
+    font-size: 10pt;
+}
+
+.dsg-table thead > tr {
+
+}
+
+.dsg-table thead > tr > th {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 24px;
+    cursor: pointer;
+}
+
+.dsg-table tbody > tr {
+    line-height: 20px;
+    font-weight: 300;
+    font-size: 12px;
+}
+
+.dsg-table tbody > tr > td {
+
+}
+
+.dsg-table tbody > tr:nth-child(even) {
+    background: #edf4f8;
+}
+
+.dsg-table tbody > tr:nth-child(odd) {
+    /*background: #FFF;*/
+}
