@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Request;
 
 class Renderer
 {
+    const FILTER_VIEWS = [
+        0 => 'grid.filter.integer',
+        1 => 'grid.filter.string',
+    ];
     private $provider;
     private $method;
 
@@ -23,6 +27,16 @@ class Renderer
         return view('grid.header_cell', $cell)->render();
     }
 
+    private function renderFilter(Column $column): string
+    {
+        $data = [
+            'attribute' => $column->getName(),
+            'type' => $column->getFilterType(),
+        ];
+
+        return view(self::FILTER_VIEWS[$column->getFilterType()], $data)->render();
+    }
+
     private function prepareHeaderTemplate(): array
     {
         $cells = [];
@@ -33,6 +47,9 @@ class Renderer
                 'attribute' => $attribute,
                 'name' => $column->hasAlias() ? $column->getAlias() : $attribute
             ];
+            if ($column->hasFilter()) {
+                $cell['filter'] = $this->renderFilter($column);
+            }
             $cells[] = $this->renderHeaderCell($cell);
         }
 
