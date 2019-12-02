@@ -7,7 +7,15 @@
     <script src="{{ URL::asset('js/grid/grid.js') }}"></script>
     <script src="{{ URL::asset("js/grid/main-{$method}.js") }}"></script>
 @endsection
-<table class="dsg-table">
-    {!! $header !!}
-    {!! $body ?? '' !!}
-</table>
+<div class="dsg-table-wrapper">
+    <table class="dsg-table">
+        {!! $header !!}
+        {!! $body ?? '' !!}
+    </table>
+    <div class="dsg-summary">
+        {!! $summary ?? '' !!}
+    </div>
+    <div class="dsg-pagination">
+        {!! $pagination ?? '' !!}
+    </div>
+</div>

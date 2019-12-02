@@ -60,3 +60,16 @@
 .dsg-filter.string {
     width: 100px;
 }
+
+.dsg-pagination {
+    border-top: 1px solid #cecece;
+    padding-top: 17px;
+}
+
+.dsg-pagination .links button {
+    cursor: pointer;
+}
+
+.dsg-pagination .links button.current {
+    padding: 3px 8px 3px;
+}

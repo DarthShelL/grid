@@ -5,7 +5,7 @@ if (document.readyState != 'loading') {
 }
 
 function initGrids() {
-    const tables = document.querySelectorAll('.dsg-table');
+    const tables = document.querySelectorAll('.dsg-table-wrapper');
     for (let table of tables) {
         new grid(table, 'GET');
     }
