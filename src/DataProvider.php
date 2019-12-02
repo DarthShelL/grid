@@ -12,15 +12,17 @@ class DataProvider
     const INTEGER = 0;
     const STRING = 1;
 
-    private $collection;
+    private $builder = null;
+    private $collection = null;
     private $model;
     private $columns = [];
     private $conditions = [];
 
+    public $perPage = 2;
+
     public function __construct(Model $model)
     {
         $this->model = $model;
-        $this->collection = $this->model::all();
 
         // set columns
         $this->setColumns();
@@ -32,32 +34,40 @@ class DataProvider
         if (!Request::has('dsgrid_update'))
             return;
 
-        $order_by = Request::input('order_by');
-        $order_direction = Request::input('order_direction');
-        if (!is_null($order_by) && !is_null($order_by)) {
-            $this->collection = $this->model::orderBy($order_by, $order_direction);
-        }
+        $this->parseConditions();
+        $this->processConditions();
+        $this->processSorting();
 
+        echo $this->renderGrid();
+
+        exit(0);
+    }
+
+    private function parseConditions()
+    {
         foreach (Request::input() as $param => $value) {
             $m = [];
             if (preg_match('/f[atv]_(\d)/', $param, $m)) {
                 $this->addCondition(Request::input('fa_' . $m[1]), (int)Request::input('ft_' . $m[1]), Request::input('fv_' . $m[1]));
             }
         }
+    }
 
+    private function processSorting()
+    {
+        $order_by = Request::input('order_by');
+        $order_direction = Request::input('order_direction');
+
+        if (!is_null($order_by) && !is_null($order_by)) {
+            $this->getBuilder()->orderBy($order_by, $order_direction);
+        }
+    }
+
+    private function processConditions()
+    {
         foreach ($this->conditions as $condition) {
-            if (get_class($this->collection) == "Illuminate\Database\Eloquent\Collection") {
-                $this->collection = $this->model::where($condition->attribute, $condition->operator, $condition->value, 'and');
-            } else {
-                $this->collection = $this->collection->where($condition->attribute, $condition->operator, $condition->value, 'and');
-            }
+            $this->getBuilder()->where($condition->attribute, $condition->operator, $condition->value, 'and');
         }
-
-        if (get_class($this->collection) == "Illuminate\Database\Eloquent\Builder") {
-            $this->collection = $this->collection->get();
-        }
-        echo $this->renderBody();
-        exit(0);
     }
 
     private function addCondition(string $attribute, int $type, string $expression)
@@ -81,19 +91,36 @@ class DataProvider
         array_push($this->conditions, (object)compact('attribute', 'operator', 'value'));
     }
 
+    public function getBuilder()
+    {
+        if (is_null($this->builder)) {
+            $this->builder = $this->model::query();
+        }
+        return $this->builder;
+    }
+
+    public function getCollection()
+    {
+//        return $this->getBuilder()->get();
+        return $this->getBuilder()->paginate($this->perPage);
+    }
+
     private function setColumns()
     {
-        // get Collection
-
-        foreach ($this->collection->first()->getAttributes() as $name => $value) {
+        foreach ($this->getCollection()->first()->getAttributes() as $name => $value) {
             $this->columns[] = new Column($name);
         }
     }
-
-    public function renderBody(): string
-    {
-        return (new Renderer($this))->renderBody();
-    }
+//
+//    public function renderBody(): string
+//    {
+//        return (new Renderer($this))->renderBody();
+//    }
+//
+//    public function renderSummary(): string
+//    {
+//
+//    }
 
     public function renderGrid(): string
     {
@@ -165,6 +192,11 @@ class DataProvider
 
     public function getRows(): array
     {
-        return $this->collection->all();
+        return $this->getCollection()->all();
+    }
+
+    public function getTotal(): int
+    {
+        return $this->getCollection()->count();
     }
 }

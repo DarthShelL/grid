@@ -1,16 +1,63 @@
 class grid {
-    constructor(table, method) {
-        this.table = table;
+    constructor(wrapper, method) {
+        this.wrapper = wrapper;
+        this.table = this.getTable();
+        this.pagination = this.getPagination();
         this.method = method;
         this.setActions();
+    }
+
+    getTable() {
+        return this.wrapper.querySelector('.dsg-table');
+    }
+
+    getPagination() {
+        return this.wrapper.querySelector('.dsg-pagination');
     }
 
     setActions() {
         this.table.addEventListener('click', this.actionsHandler.bind(this));
 
+        // filters
         const filter_inputs = this.table.querySelectorAll('input.dsg-filter');
         for (const filter of filter_inputs) {
             filter.addEventListener('change', this.filterActionHandler.bind(this));
+        }
+
+        // pagination
+        this.getPagination().addEventListener('click', this.paginationActionsHandler.bind(this));
+    }
+
+    paginationActionsHandler(e) {
+        console.log(e.target.tagName);
+        if (e.target.tagName == 'BUTTON') {
+            const btn = e.target;
+            const current = parseInt(btn.parentNode.querySelector('.current').innerText);
+            const page = parseInt(btn.innerText);
+
+            const data = this.prepareData();
+
+            if (!isNaN(page)) {
+                data.page = page;
+            }else {
+                switch(btn.innerText) {
+                    case '>':
+                        data.page = current + 1;
+                        break;
+                    case '<':
+                        data.page = current - 1;
+                        break;
+                    case '>>':
+                        const last = btn.getAttribute('data-last');
+                        data.page = last;
+                        break;
+                    case '<<':
+                        data.page = 1;
+                        break;
+                }
+            }
+
+            this.update(data);
         }
     }
 
@@ -44,6 +91,7 @@ class grid {
                     this.clearSort();
                     headerCell.setAttribute('data-sort', 'ASC');
                 }
+                console.log(this);
                 this.update();
                 break;
             case 'TD':
@@ -66,8 +114,23 @@ class grid {
         return false;
     }
 
-    updateBody(resp) {
-        this.table.querySelector('tbody').innerHTML = resp;
+    updateGrid(resp) {
+        let temp = document.createElement("div");
+        temp.innerHTML = resp;
+
+        let body = temp.querySelector('table.dsg-table tbody').innerHTML;
+        this.updateBody(body);
+
+        let pagination = temp.querySelector('.dsg-pagination').innerHTML;
+        this.updatePagination(pagination);
+    }
+
+    updateBody(body) {
+        this.table.querySelector('tbody').innerHTML = body;
+    }
+
+    updatePagination(pagination) {
+        this.getPagination().innerHTML = pagination;
     }
 
     makeURLParams(data) {
@@ -88,7 +151,7 @@ class grid {
             if (this.status >= 200 && this.status < 400) {
                 // Success!
                 const resp = this.responseText;
-                grid.updateBody(resp);
+                grid.updateGrid(resp);
             } else {
                 // We reached our target server, but it returned an error
             }
@@ -122,7 +185,7 @@ class grid {
         return filters;
     }
 
-    update() {
+    prepareData() {
         const data = {dsgrid_update: true};
         //get sort
         const sort = this.getSort();
@@ -139,7 +202,16 @@ class grid {
             data['fv_' + i] = filters[i].expression;
         }
 
+        return data;
+    }
+
+    update(data) {
+        if (typeof data == "undefined") {
+            this.sendUpdateRequest(this.prepareData());
+        }else {
+            this.sendUpdateRequest(data);
+        }
+
         console.log(data);
-        this.sendUpdateRequest(data);
     }
 }

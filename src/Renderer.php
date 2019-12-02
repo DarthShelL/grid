@@ -86,6 +86,22 @@ class Renderer
         return compact('rows');
     }
 
+    public function renderSummary(): string
+    {
+//        return "<span class='summary'>{$this->provider->getCollection()->count()}</span>";
+        return '';
+    }
+
+    public function renderPagination(): string
+    {
+        $c = $this->provider->getCollection();
+        $data = [
+            'pages_num' => $c->lastPage(),
+            'current_page' => $c->currentPage()
+        ];
+        return view('grid.pagination.main', $data)->render();
+    }
+
     public function renderBody(): string
     {
         $rows = $this->prepareBodyTemplate();
@@ -97,7 +113,9 @@ class Renderer
         return [
             'method' => $this->method,
             'header' => $this->renderHeader(),
-            'body' => $this->renderbody()
+            'body' => $this->renderbody(),
+            'summary' => $this->renderSummary(),
+            'pagination' => $this->renderPagination()
         ];
     }
 
