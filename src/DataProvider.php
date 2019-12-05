@@ -18,7 +18,8 @@ class DataProvider
     private $columns = [];
     private $conditions = [];
 
-    public $perPage = 2;
+    public $perPage = 1;
+    public $noskip = 2;
 
     public function __construct(Model $model)
     {

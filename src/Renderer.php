@@ -96,6 +96,7 @@ class Renderer
     {
         $c = $this->provider->getCollection();
         $data = [
+            'noskip' => $this->provider->noskip,
             'pages_num' => $c->lastPage(),
             'current_page' => $c->currentPage()
         ];
