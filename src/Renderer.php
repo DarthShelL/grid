@@ -11,7 +11,7 @@ class Renderer
 {
     const FILTER_VIEWS = [
         0 => 'grid.filter.integer',
-        1 => 'grid.filter.string',
+        1 => 'grid.filter.string'
     ];
     private $provider;
     private $method;
@@ -29,12 +29,16 @@ class Renderer
 
     private function renderFilter(Column $column): string
     {
-        $data = [
-            'attribute' => $column->getName(),
-            'type' => $column->getFilterType(),
-        ];
+        $data = null;
 
-        return view(self::FILTER_VIEWS[$column->getFilterType()], $data)->render();
+        if ($column->hasFilter()) {
+            $data = [
+                'attribute' => $column->getName(),
+                'type' => $column->getFilterType(),
+            ];
+            return view(self::FILTER_VIEWS[$column->getFilterType()], $data)->render();
+        } else
+            return view(self::FILTER_VIEWS[$column->getFilterType()])->render();
     }
 
     private function prepareHeaderTemplate(): array
@@ -47,13 +51,32 @@ class Renderer
                 'attribute' => $attribute,
                 'name' => $column->hasAlias() ? $column->getAlias() : $attribute
             ];
-            if ($column->hasFilter()) {
-                $cell['filter'] = $this->renderFilter($column);
-            }
+//            if ($column->hasFilter()) {
+//                $cell['filter'] = $this->renderFilter($column);
+//            }
             $cells[] = $this->renderHeaderCell($cell);
         }
 
-        return compact('cells');
+        $data = ['cells' => $cells];
+        if ($this->provider->hasFilters())
+            $data['filters'] = $this->prepareFilters();
+
+        return $data;
+    }
+
+    private function prepareFilters(): array
+    {
+        $filters = [];
+
+        foreach ($this->provider->getColumns() as $column) {
+            if ($column->hasFilter()) {
+                $filters[] = $this->renderFilter($column);
+            } else {
+                $filters[] = '';
+            }
+        }
+
+        return $filters;
     }
 
     private function renderHeader(): string
