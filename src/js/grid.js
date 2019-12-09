@@ -91,7 +91,6 @@ class grid {
                     this.clearSort();
                     headerCell.setAttribute('data-sort', 'ASC');
                 }
-                console.log(this);
                 this.update();
                 break;
             case 'TD':
@@ -211,7 +210,5 @@ class grid {
         }else {
             this.sendUpdateRequest(data);
         }
-
-        console.log(data);
     }
 }
