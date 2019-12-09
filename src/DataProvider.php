@@ -107,7 +107,7 @@ class DataProvider
 
     private function setColumns()
     {
-        foreach ($this->getCollection()->first()->getAttributes() as $name => $value) {
+        foreach ($this->getBuilder()->first()->getAttributes() as $name => $value) {
             $this->columns[] = new Column($name);
         }
     }

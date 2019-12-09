@@ -48,4 +48,38 @@ And also don't forget about controller action:
     }
 
 That's all!
-Read documentation for more info (hopefully I'll write it)
+
+
+## Short doc
+
+### setting rows number per page
+
+    $provider->perPage = 15;
+
+### hiding column
+
+    $provider->hideColumn('column_name');
+    $provider->hideColumn('column_name','column2_name',...);
+
+### adding filter
+
+#### integer filter
+ it also supports operators [ >, <, =, >=, <=, >< ]
+
+    $provider->addFilter('id', $provider::INTEGER);
+
+#### string filter
+ it also supports operator [ % ] with sintax equal to SQL LIKE
+
+    $provider->addFilter('name', $provider::STRING);
+
+### adding column format
+
+    $provider->addFormat('type', function($row) {
+        $types = [
+            0 => 'span',
+            1 => 'link'
+        ];
+        return $types[$row->type];
+    });
+
