@@ -113,12 +113,6 @@ class Renderer
         return compact('rows');
     }
 
-    public function renderSummary(): string
-    {
-//        return "<span class='summary'>{$this->provider->getCollection()->count()}</span>";
-        return '';
-    }
-
     public function renderPagination(): string
     {
         $c = $this->provider->getCollection();
@@ -142,7 +136,6 @@ class Renderer
             'method' => $this->method,
             'header' => $this->renderHeader(),
             'body' => $this->renderbody(),
-            'summary' => $this->renderSummary(),
             'pagination' => $this->renderPagination()
         ];
     }
