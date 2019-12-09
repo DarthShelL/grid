@@ -17,8 +17,10 @@ class DataProvider
     private $model;
     private $columns = [];
     private $conditions = [];
+    private $has_filters = false;
 
-    public $perPage = 2;
+    public $perPage = 10;
+    public $noskip = 2;
 
     public function __construct(Model $model)
     {
@@ -30,7 +32,6 @@ class DataProvider
 
     public function processUpdate()
     {
-        // Order By
         if (!Request::has('dsgrid_update'))
             return;
 
@@ -101,7 +102,6 @@ class DataProvider
 
     public function getCollection()
     {
-//        return $this->getBuilder()->get();
         return $this->getBuilder()->paginate($this->perPage);
     }
 
@@ -111,16 +111,6 @@ class DataProvider
             $this->columns[] = new Column($name);
         }
     }
-//
-//    public function renderBody(): string
-//    {
-//        return (new Renderer($this))->renderBody();
-//    }
-//
-//    public function renderSummary(): string
-//    {
-//
-//    }
 
     public function renderGrid(): string
     {
@@ -187,6 +177,7 @@ class DataProvider
 
     public function addFilter(string $attribute, int $filter_type)
     {
+        $this->has_filters = true;
         $this->getColumnByName($attribute)->setFilterType($filter_type);
     }
 
@@ -195,8 +186,13 @@ class DataProvider
         return $this->getCollection()->all();
     }
 
-    public function getTotal(): int
+    public function addFormat(string $attribute, $format)
     {
-        return $this->getCollection()->count();
+        $this->getColumnByName($attribute)->setFormat($format);
+    }
+
+    public function hasFilters(): bool
+    {
+        return $this->has_filters;
     }
 }
