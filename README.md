@@ -54,25 +54,24 @@ That's all!
 
 ### setting rows number per page
 
-`$provider->perPage = 15;`
+    $provider->perPage = 15;
 
 ### hiding column
 
-`$provider->hideColumn('column_name');`
-
-`$provider->hideColumn('column_name','column2_name',...);`
+    $provider->hideColumn('column_name');
+    $provider->hideColumn('column_name','column2_name',...);
 
 ### adding filter
 
 #### integer filter
  it also supports operators [ >, <, =, >=, <=, >< ]
 
-`$provider->addFilter('id', $provider::INTEGER);`
+    $provider->addFilter('id', $provider::INTEGER);
 
 #### string filter
  it also supports operator [ % ] with sintax equal to SQL LIKE
 
-`$provider->addFilter('name', $provider::STRING);`
+    $provider->addFilter('name', $provider::STRING);
 
 ### adding column format
 
@@ -83,3 +82,4 @@ That's all!
         ];
         return $types[$row->type];
     });
+
