@@ -90,7 +90,11 @@ class Renderer
         $cells = [];
 
         foreach ($this->provider->getColumns() as $column) {
-            $value = $row->{$column->getName()};
+            if ($column->hasFormat()) {
+                $value = $column->getFormat()($row);
+            }else {
+                $value = $row->{$column->getName()};
+            }
             $cells[] = view('grid.body_cell', compact('value'))->render();
         }
 
