@@ -186,6 +186,11 @@ class DataProvider
         return $this->getCollection()->all();
     }
 
+    public function addFormat(string $attribute, $format)
+    {
+        $this->getColumnByName($attribute)->setFormat($format);
+    }
+
     public function hasFilters(): bool
     {
         return $this->has_filters;
