@@ -13,6 +13,12 @@ class Renderer
         0 => 'grid.filter.integer',
         1 => 'grid.filter.string'
     ];
+    const EDITABLE_VIEWS = [
+        0 => 'grid.editable.input',
+        1 => 'grid.editable.input',
+        2 => 'grid.editable.input',
+        3 => 'grid.editable.select'
+    ];
     private $provider;
     private $method;
 
@@ -51,9 +57,6 @@ class Renderer
                 'attribute' => $attribute,
                 'name' => $column->hasAlias() ? $column->getAlias() : $attribute
             ];
-//            if ($column->hasFilter()) {
-//                $cell['filter'] = $this->renderFilter($column);
-//            }
             $cells[] = $this->renderHeaderCell($cell);
         }
 
@@ -85,17 +88,52 @@ class Renderer
         return view('grid.header', $cells)->render();
     }
 
+    private function renderCell(Column $column, Model $row): string
+    {
+        if ($column->hasFormat()) {
+            $value = $column->getFormat()($row);
+        } else {
+            $value = $row->{$column->getName()};
+        }
+
+        $data = [
+            'value' => $value
+        ];
+
+        return view('grid.body_cell', $data)->render();
+    }
+
+    private function renderEditableCell(Column $column, Model $row): string
+    {
+        if ($column->hasFormat()) {
+            $value = $column->getFormat()($row);
+        } else {
+            $value = $row->{$column->getName()};
+        }
+
+        $data = [
+            'value' => $value,
+            'id' => $row->{$this->provider->getKeyName()},
+            'attribute' => $column->getName(),
+            'input' => view(self::EDITABLE_VIEWS[$column->getInlineEditType()], [
+                'value' => $row->{$column->getName()},
+                'data' => $column->getInlineEditData()
+            ])->render()
+        ];
+
+        return view('grid.body_editable_cell', $data)->render();
+    }
+
     private function renderCellsByRow(Model $row): array
     {
         $cells = [];
 
         foreach ($this->provider->getColumns() as $column) {
-            if ($column->hasFormat()) {
-                $value = $column->getFormat()($row);
-            }else {
-                $value = $row->{$column->getName()};
+            if ($column->hasInlineEditing()) {
+                $cells[] = $this->renderEditableCell($column, $row);
+            } else {
+                $cells[] = $this->renderCell($column, $row);
             }
-            $cells[] = view('grid.body_cell', compact('value'))->render();
         }
 
         return $cells;

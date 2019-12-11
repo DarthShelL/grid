@@ -29,8 +29,7 @@ class grid {
     }
 
     paginationActionsHandler(e) {
-        console.log(e.target.tagName);
-        if (e.target.tagName == 'BUTTON') {
+        if (e.target.tagName === 'BUTTON') {
             const btn = e.target;
             const current = parseInt(btn.parentNode.querySelector('.current').innerText);
             const page = parseInt(btn.innerText);
@@ -39,8 +38,8 @@ class grid {
 
             if (!isNaN(page)) {
                 data.page = page;
-            }else {
-                switch(btn.innerText) {
+            } else {
+                switch (btn.innerText) {
                     case '>':
                         data.page = current + 1;
                         break;
@@ -91,10 +90,58 @@ class grid {
                     this.clearSort();
                     headerCell.setAttribute('data-sort', 'ASC');
                 }
-                console.log(this);
                 this.update();
                 break;
             case 'TD':
+                break;
+            case 'DIV':
+                if (e.target.classList.contains('dsg-ie-value')) {
+                    const vDiv = e.target;
+                    const cell = vDiv.parentNode;
+                    const cellInitialWidth = parseInt(getComputedStyle(cell, null).width);
+                    const iDiv = cell.querySelector('.dsg-ie-editable');
+                    const input = iDiv.children[0];
+                    const value = input.value;
+
+                    //switch
+                    vDiv.classList.add('hidden');
+                    iDiv.classList.remove('hidden');
+                    cell.style.width = cellInitialWidth + 'px';
+                    input.style.width = cellInitialWidth + 'px';
+                    input.focus();
+
+                    const kdHandler = function (e) {
+                        if (e.key == 'Escape') {
+                            //switch back
+                            vDiv.classList.remove('hidden');
+                            iDiv.classList.add('hidden');
+                            input.value = value;
+                            cell.style.width = 'auto';
+                        }
+                    }
+                    const outHandler = function (e) {
+                        //switch back
+                        vDiv.classList.remove('hidden');
+                        iDiv.classList.add('hidden');
+                        input.value = value;
+                        cell.style.width = 'auto';
+                    }
+                    const changeHandler = function(e) {
+                        //collect data
+                        const data = this.prepareData();
+                        data.inline_edit = true;
+                        data.edit_id = iDiv.getAttribute('data-id');
+                        data.edit_attribute = iDiv.getAttribute('data-attribute');
+                        data.edit_value = encodeURI(input.value);
+
+                        //send data
+                        this.update(data);
+                    }
+
+                    iDiv.addEventListener('keydown', kdHandler, {once: true});
+                    input.addEventListener('focusout', outHandler, {once: true});
+                    input.addEventListener('change', changeHandler.bind(this), {once: true});
+                }
                 break;
         }
     }
@@ -208,10 +255,8 @@ class grid {
     update(data) {
         if (typeof data == "undefined") {
             this.sendUpdateRequest(this.prepareData());
-        }else {
+        } else {
             this.sendUpdateRequest(data);
         }
-
-        console.log(data);
     }
 }

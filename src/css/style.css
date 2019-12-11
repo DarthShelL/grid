@@ -35,6 +35,10 @@
 
 }
 
+.dsg-table tbody > tr > td.dsg-ie-cell:hover {
+    box-shadow: inset 0px 0px 2px gray;
+}
+
 .dsg-table tbody > tr:nth-child(even) {
     background: #edf4f8;
 }
@@ -72,4 +76,14 @@
 
 .dsg-pagination .links button.current {
     padding: 3px 8px 3px;
+}
+
+.hidden {
+    display: none;
+}
+
+.dsg-ie-input {
+    box-sizing: border-box;
+    outline: none;
+    padding: 0;
 }

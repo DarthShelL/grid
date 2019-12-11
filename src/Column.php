@@ -3,10 +3,6 @@
 
 namespace DarthShelL\Grid;
 
-
-use phpDocumentor\Reflection\Types\Boolean;
-use phpDocumentor\Reflection\Types\Mixed_;
-
 class Column
 {
     private $name = null;
@@ -14,6 +10,9 @@ class Column
     private $filter_type = null;
     private $format = null;
     private $hidden = false;
+    private $inline_editing = false;
+    private $inline_edit_type = null;
+    private $inline_edit_data = null;
 
     public function __construct(string $name, string $alias = null, int $filter_type = null, $format = null)
     {
@@ -83,11 +82,35 @@ class Column
         $this->hidden = true;
     }
 
-    /**
-     * @return bool
-     */
     public function isHidden(): bool
     {
         return $this->hidden;
+    }
+
+    public function enableInlineEditing(int $inline_edit_type, array $data = null)
+    {
+        $this->inline_editing = true;
+        $this->inline_edit_type = $inline_edit_type;
+
+        if (!is_null($data)) {
+            $this->inline_edit_data = $data;
+        } elseif ($inline_edit_type === DataProvider::ENUM) {
+            throw new \Exception("\$data argument can not be null for ENUM type");
+        }
+    }
+
+    public function hasInlineEditing(): bool
+    {
+        return $this->inline_editing;
+    }
+
+    public function getInlineEditType(): int
+    {
+        return $this->inline_edit_type;
+    }
+
+    public function getInlineEditData()
+    {
+        return $this->inline_edit_data;
     }
 }
