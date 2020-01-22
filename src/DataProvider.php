@@ -6,6 +6,7 @@ namespace DarthShelL\Grid;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Schema;
 
 class DataProvider
 {
@@ -135,7 +136,9 @@ class DataProvider
 
     private function setColumns()
     {
-        foreach ($this->getBuilder()->first()->getAttributes() as $name => $value) {
+        $columns = Schema::getColumnListing($this->model->getTable());
+
+        foreach ($columns as $key => $name) {
             $this->columns[] = new Column($name);
         }
     }
