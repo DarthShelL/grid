@@ -37,6 +37,7 @@ class DataProvider
         if (!Request::has('dsgrid_update'))
             return;
 
+        $this->processInlineEditing();
         $this->parseConditions();
         $this->processConditions();
         $this->processSorting();
@@ -56,18 +57,13 @@ class DataProvider
         }
     }
 
-    private function processSorting()
+    private function processInlineEditing()
     {
         $inline_edit = Request::input('inline_edit');
         $edit_id = Request::input('edit_id');
         $edit_attribute = Request::input('edit_attribute');
         $edit_value = urldecode(Request::input('edit_value'));
-        $order_by = Request::input('order_by');
-        $order_direction = Request::input('order_direction');
 
-        if (!is_null($order_by) && !is_null($order_by)) {
-            $this->getBuilder()->orderBy($order_by, $order_direction);
-        }
         if (!is_null($inline_edit) && !is_null($edit_id) && !is_null($edit_attribute) && !is_null($edit_value)) {
             $this->applyInlineEditing($edit_attribute, $edit_id, $edit_value);
         }
@@ -83,6 +79,16 @@ class DataProvider
             if (!$model->save()) {
                 throw new \Exception("Can't save record.");
             }
+        }
+    }
+
+    private function processSorting()
+    {
+        $order_by = Request::input('order_by');
+        $order_direction = Request::input('order_direction');
+
+        if (!is_null($order_by) && !is_null($order_by)) {
+            $this->getBuilder()->orderBy($order_by, $order_direction);
         }
     }
 
