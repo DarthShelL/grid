@@ -138,9 +138,9 @@ class grid {
                         this.update(data);
                     }
 
-                    iDiv.addEventListener('keydown', kdHandler);
-                    input.addEventListener('focusout', outHandler);
-                    input.addEventListener('change', changeHandler.bind(this));
+                    iDiv.addEventListener('keydown', kdHandler, {once: true});
+                    input.addEventListener('focusout', outHandler, {once: true});
+                    input.addEventListener('change', changeHandler.bind(this), {once: true});
                 }
                 break;
         }
