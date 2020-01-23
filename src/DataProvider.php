@@ -236,4 +236,9 @@ class DataProvider
     {
         return $this->model->getKeyName();
     }
+
+    public function addCustomColumn(string $name, string $alias = null)
+    {
+        $this->columns[] = new Column($name, $alias);
+    }
 }
