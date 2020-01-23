@@ -162,6 +162,16 @@ class grid {
     }
 
     updateGrid(resp) {
+        try {
+            const r = JSON.parse(resp);
+            let msg = '';
+            for (const error in r) {
+                msg += r[error] + '\n';
+            }
+            alert(msg);
+            return;
+        } catch (e) {}
+
         let temp = document.createElement("div");
         temp.innerHTML = resp;
 

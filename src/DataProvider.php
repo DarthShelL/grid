@@ -7,6 +7,7 @@ namespace DarthShelL\Grid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 
 class DataProvider
 {
@@ -76,6 +77,13 @@ class DataProvider
 
         if (!is_null($model)) {
             $model->{$attribute} = $value;
+
+            $validator = Validator::make([$attribute => $value], $model->rules);
+
+            if ($validator->fails()) {
+                echo json_encode($validator->errors());
+                exit();
+            }
 
             if (!$model->save()) {
                 throw new \Exception("Can't save record.");
