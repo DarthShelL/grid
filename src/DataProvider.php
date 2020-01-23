@@ -78,15 +78,18 @@ class DataProvider
         if (!is_null($model)) {
             $model->{$attribute} = $value;
 
-            $validator = Validator::make([$attribute => $value], $model->rules);
+            if (isset($model->rules[$attribute])) {
+                $validator = Validator::make([$attribute => $value], [$attribute => $model->rules[$attribute]]);
 
-            if ($validator->fails()) {
-                echo json_encode($validator->errors());
-                exit();
+                if ($validator->fails()) {
+                    echo json_encode($validator->errors());
+                    exit();
+                }
             }
 
             if (!$model->save()) {
-                throw new \Exception("Can't save record.");
+                echo json_encode(['error'=>"Can't save record."]);
+                exit();
             }
         }
     }
