@@ -43,6 +43,7 @@ class DataProvider
         $this->parseConditions();
         $this->processConditions();
         $this->processSorting();
+        $this->processRemoving();
 
         echo $this->renderGrid();
 
@@ -68,6 +69,21 @@ class DataProvider
 
         if (!is_null($inline_edit) && !is_null($edit_id) && !is_null($edit_attribute) && !is_null($edit_value)) {
             $this->applyInlineEditing($edit_attribute, $edit_id, $edit_value);
+        }
+    }
+
+    private function processRemoving()
+    {
+        $rr_flag = Request::input('rr_flag');
+        $rrid = Request::input('rrid');
+
+        if (!is_null($rr_flag) && !is_null($rrid)) {
+            $model = $this->model::find($rrid);
+
+            if (!$model->delete()) {
+                echo json_encode(['error'=>"Can't delete record."]);
+                exit();
+            }
         }
     }
 
@@ -251,5 +267,14 @@ class DataProvider
     public function addCustomColumn(string $name, string $alias = null)
     {
         $this->columns[] = new Column($name, $alias);
+    }
+
+    public function addActionsColumn()
+    {
+        $this->columns[] = new Column('actions');
+
+        $this->addFormat('actions', function($row) {
+            return view('grid.actions_column_cell', compact('row'))->render();
+        });
     }
 }
