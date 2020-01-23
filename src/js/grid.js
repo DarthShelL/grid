@@ -94,6 +94,26 @@ class grid {
                 break;
             case 'TD':
                 break;
+            case 'A':
+                if (e.target.classList.contains('remove-btn')) {
+                    e.preventDefault();
+
+                    let decision = confirm('You are about to delete record. Are you sure?');
+
+                    if (!decision)
+                        return;
+
+                    const btn = e.target;
+                    const id = btn.getAttribute('data-id');
+
+                    const data = this.prepareData();
+                    data.rr_flag = true;
+                    data.rrid = id;
+
+                    //send data
+                    this.update(data);
+                }
+                break;
             case 'DIV':
                 if (e.target.classList.contains('dsg-ie-value')) {
                     const vDiv = e.target;
@@ -126,7 +146,7 @@ class grid {
                         input.value = value;
                         cell.style.width = 'auto';
                     }
-                    const changeHandler = function(e) {
+                    const changeHandler = function (e) {
                         //collect data
                         const data = this.prepareData();
                         data.inline_edit = true;
@@ -170,7 +190,8 @@ class grid {
             }
             alert(msg);
             return;
-        } catch (e) {}
+        } catch (e) {
+        }
 
         let temp = document.createElement("div");
         temp.innerHTML = resp;
