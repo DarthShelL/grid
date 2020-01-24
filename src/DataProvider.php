@@ -49,6 +49,9 @@ class DataProvider
 
         // set columns
         foreach ($config['columns'] as $attribute => $params) {
+            if (isset($params['filter']) && !is_null($params['filter']))
+                $this->has_filters = true;
+
             $_column = new Column(
                 $attribute,
                 $params['alias'] ?? null,
