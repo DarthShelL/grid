@@ -8,6 +8,9 @@
     <script src="{{ URL::asset("js/grid/main-{$method}.js") }}"></script>
 @endsection
 <div class="dsg-table-wrapper">
+    <div class="dsg-action-panel">
+        <a href="#" class="dsg-btn add-row-btn" title="Добавить строку">+</a>
+    </div>
     <table class="dsg-table">
         {!! $header !!}
         {!! $body ?? '' !!}

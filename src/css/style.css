@@ -70,6 +70,20 @@
     padding-top: 17px;
 }
 
+.dsg-action-panel {
+
+}
+
+.dsg-action-panel > .dsg-btn {
+    float: right;
+}
+
+.dsg-action-panel::after {
+    display: block;
+    content: "";
+    clear: both;
+}
+
 .dsg-pagination .links button {
     cursor: pointer;
 }
@@ -86,6 +100,9 @@
     box-sizing: border-box;
     outline: none;
     padding: 0;
+}
+.dsg-ie-select {
+    outline: none;
 }
 
 a.dsg-btn:link,
@@ -117,4 +134,25 @@ a.dsg-btn:hover {
     background: -webkit-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%); /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(to bottom,  #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#fefefe',GradientType=0 ); /* IE6-9 */
+}
+
+.dsg-ie-cell {
+    position: relative;
+    height: 100%;
+}
+
+.dsg-ie-value {
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    top: 1px;
+}
+
+.dsg-template-cell {
+    vertical-align: bottom;
+}
+
+.dsg-template-cell > input,
+.dsg-template-cell > select {
+    width: 100%;
 }

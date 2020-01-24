@@ -124,6 +124,22 @@ class Renderer
         return view('grid.body_editable_cell', $data)->render();
     }
 
+    private function renderTemplateCell(Column $column): string
+    {
+        if ($column->getName() == 'actions') {
+            return view('grid.save_row_cell')->render();
+        }else {
+            $data = [
+                'attribute' => $column->getName(),
+                'input' => view(self::EDITABLE_VIEWS[$column->getInlineEditType()], [
+                    'value' => '',
+                    'data' => $column->getInlineEditData()
+                ])->render()
+            ];
+            return view('grid.template_editable_cell', $data)->render();
+        }
+    }
+
     private function renderCellsByRow(Model $row): array
     {
         $cells = [];
@@ -146,6 +162,10 @@ class Renderer
         foreach ($this->provider->getRows() as $row) {
             $cells = $this->renderCellsByRow($row);
             $rows[] = view('grid.row', compact('cells'))->render();
+        }
+
+        if ($this->provider->row_adding_enabled) {
+            $rows[] = $this->renderTemplateRow();
         }
 
         return compact('rows');
@@ -176,6 +196,17 @@ class Renderer
             'body' => $this->renderbody(),
             'pagination' => $this->renderPagination()
         ];
+    }
+
+    public function renderTemplateRow(): string
+    {
+        $cells = [];
+
+        foreach ($this->provider->getColumns() as $column) {
+            $cells[] = $this->renderTemplateCell($column);
+        }
+
+        return view('grid.template_row', compact('cells'))->render();
     }
 
     public function render(): string
