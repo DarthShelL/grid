@@ -9,17 +9,20 @@ class Column
     private $alias = null;
     private $filter_type = null;
     private $format = null;
+    private $validation_rule = null;
     private $hidden = false;
     private $inline_editing = false;
     private $inline_edit_type = null;
     private $inline_edit_data = null;
 
-    public function __construct(string $name, string $alias = null, int $filter_type = null, $format = null)
+    public function __construct(string $name, string $alias = null, int $filter_type = null, $format = null, $validation_rule = null, $is_hidden = null)
     {
         $this->setName($name);
         is_null($alias) ?: $this->setAlias($alias);
         is_null($filter_type) ?: $this->setFilterType($filter_type);
         is_null($format) ?: $this->setFormat($format);
+        is_null($validation_rule) ?: $this->setValidationRule($validation_rule);
+        is_null($is_hidden) ?: $this->hide();
     }
 
     public function getName(): string
@@ -75,6 +78,21 @@ class Column
     public function setFormat($format)
     {
         $this->format = $format;
+    }
+
+    public function hasValidationRule(): bool
+    {
+        return is_null($this->validation_rule) ? false : true;
+    }
+
+    public function getValidationRule(): array
+    {
+        return $this->validation_rule;
+    }
+
+    public function setValidationRule($validation_rule)
+    {
+        $this->validation_rule = [$this->getName() => $validation_rule];
     }
 
     public function hide()

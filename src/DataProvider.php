@@ -22,16 +22,58 @@ class DataProvider
     private $columns = [];
     private $conditions = [];
     private $has_filters = false;
+    private $config = null;
 
     public $perPage = 10;
     public $noskip = 2;
 
-    public function __construct(Model $model)
+    public function __construct(Model $model, $config = null)
     {
         $this->model = $model;
 
+        if (!$this->initFromConfig($config)) {
+            $this->setColumns();
+        }
+
+        $this->processUpdate();
+    }
+
+    private function initFromConfig(array $config): bool
+    {
+        // check if config exists
+        if (is_null($config)) return false;
+
+        // set general parameters
+        $this->perPage = $config['rows_per_page'] ?? $this->perPage;
+        $this->noskip = $config['pages_in_paginator'] ?? $this->noskip;
+
         // set columns
-        $this->setColumns();
+        foreach ($config['columns'] as $attribute => $params) {
+            $_column = new Column(
+                $attribute,
+                $params['alias'] ?? null,
+                $params['filter'] ?? null,
+                $params['format'] ?? null,
+                $params['validation_rule'] ?? null,
+                $params['hidden'] ?? null
+            );
+
+            if (isset($params['inline_edit'])) {
+                $ie_params = $params['inline_edit'];
+                $_column->enableInlineEditing($ie_params['type'], $ie_params['data'] ?? null);
+            }
+
+            $this->columns[] = $_column;
+        }
+
+        // actions column
+        if (isset($config['actions_column'])) {
+            $this->addActionsColumn($config['actions_column']['name'] ?? null);
+        }
+
+        $this->config = $config;
+
+        return true;
     }
 
     public function processUpdate()
@@ -81,7 +123,7 @@ class DataProvider
             $model = $this->model::find($rrid);
 
             if (!$model->delete()) {
-                echo json_encode(['error'=>"Can't delete record."]);
+                echo json_encode(['error' => "Can't delete record."]);
                 exit();
             }
         }
@@ -92,21 +134,29 @@ class DataProvider
         $model = $this->model::find($id);
 
         if (!is_null($model)) {
-            $model->{$attribute} = $value;
-
-            if (isset($model->rules[$attribute])) {
+            $column = $this->getColumnByName($attribute);
+            if ($column->hasValidationRule()) {
+                $validator = Validator::make([$attribute => $value], $column->getValidationRule());
+            } else if (isset($model->rules[$attribute])) {
                 $validator = Validator::make([$attribute => $value], [$attribute => $model->rules[$attribute]]);
-
-                if ($validator->fails()) {
-                    echo json_encode($validator->errors());
-                    exit();
-                }
             }
 
-            if (!$model->save()) {
-                echo json_encode(['error'=>"Can't save record."]);
+            if (isset($validator) && $validator->fails()) {
+                echo json_encode($validator->errors());
                 exit();
             }
+
+            $model->{$attribute} = $value;
+
+            try {
+                $model->save();
+            } catch (\Exception $e) {
+                echo json_encode(['error' => $e->getMessage()]);
+                exit();
+            }
+        } else {
+            echo json_encode(['error' => "Can't find record with id: {$id}"]);
+            exit();
         }
     }
 
@@ -269,11 +319,11 @@ class DataProvider
         $this->columns[] = new Column($name, $alias);
     }
 
-    public function addActionsColumn()
+    public function addActionsColumn($name = null)
     {
-        $this->columns[] = new Column('actions');
+        $this->columns[] = new Column('actions', $name ?? null);
 
-        $this->addFormat('actions', function($row) {
+        $this->addFormat('actions', function ($row) {
             return view('grid.actions_column_cell', compact('row'))->render();
         });
     }
