@@ -36,11 +36,24 @@ class grid {
         this.getActionPanel().addEventListener('click', this.actionPanelActionsHandler.bind(this));
     }
 
+    adjustTemplateRowSize() {
+        const nRowChildren = document.querySelector('.dsg-template-row').children;
+        const oRowChildren = this.getTable().querySelector('tbody tr').children;
+
+        for (let i = 0; i < oRowChildren.length; i++) {
+            const n = nRowChildren[i];
+            const o = oRowChildren[i];
+
+            n.width = getComputedStyle(o, null).width;
+        }
+    }
+
     toggleTemplateRow() {
         const row = document.querySelector('.dsg-template-row');
+        this.adjustTemplateRowSize();
         if (row.classList.contains('hidden')) {
             row.classList.remove('hidden');
-        }else {
+        } else {
             row.classList.add('hidden');
         }
     }
@@ -69,7 +82,7 @@ class grid {
         console.log({data});
 
         //send data
-        this.customRequest(data, function(resp) {
+        this.customRequest(data, function (resp) {
             try {
                 const r = JSON.parse(resp);
                 let msg = '';
