@@ -17,13 +17,13 @@ class DataProvider
     const ENUM = 3;
 
     private $builder = null;
-    private $collection = null;
     private $model;
     private $columns = [];
     private $conditions = [];
     private $has_filters = false;
     private $config = null;
 
+    public $row_adding_enabled = false;
     public $perPage = 10;
     public $noskip = 2;
 
@@ -46,9 +46,13 @@ class DataProvider
         // set general parameters
         $this->perPage = $config['rows_per_page'] ?? $this->perPage;
         $this->noskip = $config['pages_in_paginator'] ?? $this->noskip;
+        $this->row_adding_enabled = $config['row_adding_enabled'] ?? false;
 
         // set columns
         foreach ($config['columns'] as $attribute => $params) {
+            if (isset($params['filter']) && !is_null($params['filter']))
+                $this->has_filters = true;
+
             $_column = new Column(
                 $attribute,
                 $params['alias'] ?? null,
@@ -81,6 +85,7 @@ class DataProvider
         if (!Request::has('dsgrid_update'))
             return;
 
+        $this->processNewRowAdding();
         $this->processInlineEditing();
         $this->parseConditions();
         $this->processConditions();
@@ -126,6 +131,57 @@ class DataProvider
                 echo json_encode(['error' => "Can't delete record."]);
                 exit();
             }
+        }
+    }
+
+    private function processNewRowAdding()
+    {
+        $nr_flag = Request::input('nr_flag');
+
+        if (!is_null($nr_flag)) {
+            $class = get_class($this->model);
+            $model = new $class();
+
+            // collect all validation rules
+            $rules = [];
+            foreach ($this->config['columns'] as $column => $params) {
+                if (is_null($params['validation_rule']))
+                    continue;
+                $rules[$column] = $params['validation_rule'];
+            }
+
+            // collect all values
+            $values = [];
+            foreach (Request::all() as $attribute => $value) {
+                if (strpos($attribute, 'nrv_') !== false) {
+                    $name = str_replace('nrv_', '', $attribute);
+
+                    if (!is_null($value)) {
+                        $values[$name] = $value;
+                    }
+                }
+            }
+
+            // validate
+            $validator = Validator::make($values, $rules);
+            if ($validator->fails()) {
+                echo json_encode($validator->errors());
+                exit();
+            }
+
+            // setting
+            foreach ($values as $attribute => $value) {
+                $model->{$attribute} = urldecode($value);
+            }
+
+            // saving
+            try {
+                $model->save();
+            } catch (\Exception $e) {
+                echo json_encode(['error' => $e->getMessage()]);
+                exit();
+            }
+            exit();
         }
     }
 

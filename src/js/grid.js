@@ -3,6 +3,7 @@ class grid {
         this.wrapper = wrapper;
         this.table = this.getTable();
         this.pagination = this.getPagination();
+        this.actionPanel = this.getActionPanel();
         this.method = method;
         this.setActions();
     }
@@ -13,6 +14,10 @@ class grid {
 
     getPagination() {
         return this.wrapper.querySelector('.dsg-pagination');
+    }
+
+    getActionPanel() {
+        return this.wrapper.querySelector('.dsg-action-panel');
     }
 
     setActions() {
@@ -26,6 +31,110 @@ class grid {
 
         // pagination
         this.getPagination().addEventListener('click', this.paginationActionsHandler.bind(this));
+
+        // action panel
+        this.getActionPanel().addEventListener('click', this.actionPanelActionsHandler.bind(this));
+    }
+
+    adjustTemplateRowSize() {
+        const nRowChildren = document.querySelector('.dsg-template-row').children;
+        const oRowChildren = this.getTable().querySelector('tbody tr').children;
+
+        for (let i = 0; i < oRowChildren.length; i++) {
+            const n = nRowChildren[i];
+            const o = oRowChildren[i];
+
+            n.width = getComputedStyle(o, null).width;
+        }
+    }
+
+    toggleTemplateRow() {
+        const row = document.querySelector('.dsg-template-row');
+        this.adjustTemplateRowSize();
+        if (row.classList.contains('hidden')) {
+            row.classList.remove('hidden');
+        } else {
+            row.classList.add('hidden');
+        }
+    }
+
+    saveTemplateRow() {
+        const grid = this;
+        // get all cells
+        const cells = this.getTable().querySelectorAll('.dsg-template-cell');
+        console.log(cells);
+
+        let data = {};
+
+        for (const cell of cells) {
+            const attr = cell.getAttribute('data-attribute');
+            const input = cell.children[0];
+            let value = input.value;
+
+            if (input.tagName == 'SELECT' && value == '-') {
+                value = '';
+            }
+            data['nrv_' + attr] = encodeURI(value);
+        }
+
+        data.nr_flag = true;
+        data.dsgrid_update = true;
+        console.log({data});
+
+        //send data
+        this.customRequest(data, function (resp) {
+            try {
+                const r = JSON.parse(resp);
+                let msg = '';
+                for (const error in r) {
+                    msg += r[error] + '\n';
+                }
+                alert(msg);
+                return;
+            } catch (e) {
+            }
+            const data = grid.prepareData();
+            grid.update(data)
+        })
+    }
+
+    customRequest(data, callback) {
+        const grid = this;
+        const request = new XMLHttpRequest();
+        request.open(grid.method, grid.method == 'GET' ? document.location.pathname + '?' + grid.makeURLParams(data) : '', true);
+        request.onload = function () {
+            if (this.status >= 200 && this.status < 400) {
+                // Success!
+                const resp = this.responseText;
+                if (callback) {
+                    callback(resp);
+                }
+            } else {
+                // We reached our target server, but it returned an error
+            }
+        };
+
+        request.onerror = function () {
+            // There was a connection error of some sort
+        };
+
+        if (this.method == 'POST') {
+            request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            request.send(JSON.stringify(data));
+        } else {
+            request.send();
+        }
+    }
+
+    actionPanelActionsHandler(e) {
+        switch (e.target.tagName) {
+            case 'A':
+                if (e.target.classList.contains('add-row-btn')) {
+                    e.preventDefault();
+                    this.toggleTemplateRow();
+                }
+                break;
+        }
     }
 
     paginationActionsHandler(e) {
@@ -112,6 +221,11 @@ class grid {
 
                     //send data
                     this.update(data);
+                }
+                if (e.target.classList.contains('save-row-btn')) {
+                    e.preventDefault();
+
+                    this.saveTemplateRow();
                 }
                 break;
             case 'DIV':
