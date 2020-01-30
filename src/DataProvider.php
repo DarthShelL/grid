@@ -379,7 +379,7 @@ class DataProvider
     {
         $this->columns[] = new Column('actions', $name ?? null);
 
-        $this->addFormat('actions', function ($row) {
+        $this->addFormat('actions', function ($row) use ($buttons) {
             return view('grid.actions_column_cell', compact('row', 'buttons'))->render();
         });
     }
