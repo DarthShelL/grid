@@ -72,7 +72,7 @@ class DataProvider
 
         // actions column
         if (isset($config['actions_column'])) {
-            $this->addActionsColumn($config['actions_column']['name'] ?? null);
+            $this->addActionsColumn($config['actions_column']['name'] ?? null, $config['actions_column']['buttons'] ?? null);
         }
 
         $this->config = $config;
@@ -375,12 +375,12 @@ class DataProvider
         $this->columns[] = new Column($name, $alias);
     }
 
-    public function addActionsColumn($name = null)
+    public function addActionsColumn($name = null, $buttons = null)
     {
         $this->columns[] = new Column('actions', $name ?? null);
 
         $this->addFormat('actions', function ($row) {
-            return view('grid.actions_column_cell', compact('row'))->render();
+            return view('grid.actions_column_cell', compact('row', 'buttons'))->render();
         });
     }
 }
